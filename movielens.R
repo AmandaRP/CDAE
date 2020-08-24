@@ -7,12 +7,26 @@ library(tidyverse)
 library(magrittr)
 
 # Read and wrangle data ---------------------------------------------------
+# Data available from https://grouplens.org/datasets/movielens/
 
-#tmp <- tempfile()
-#download.file("http://files.grouplens.org/datasets/movielens/ml-latest-small.zip", tmp)
-#test <- jsonlite::stream_in(unz(tmp, "/ml-latest-small/ratings.csv)"))
+#filename <- "ml-latest-small.zip"
+#download.file("http://files.grouplens.org/datasets/movielens/ml-latest-small.zip", filename)
+ratings <- read_csv("ml-latest-small/ratings.csv")
 
-ratings <- read_csv("ml-latest-small/ratings.csv") %>% filter(rating >=4 )
+#filename <- "ml-10m.zip"
+#download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", filename)
+ratings <- 
+  read_delim("ml-10M100K/ratings.dat", delim = ":", col_names = FALSE) %>%
+  rename(userId = X1, movieId = X3, rating = X7) %>%
+  select(!starts_with("X")) 
+  
+
+#filename <- "ml-25m.zip"
+#download.file("http://files.grouplens.org/datasets/movielens/ml-25m.zip", filename)
+ratings <- read_csv("ml-25m/ratings.csv")
+
+#Keep only ratings greater than or equal to 4 (for translation to binary data).
+ratings %<>% filter(rating >=4 )
 
 # Iteratively remove users and items that have fewer than 5 ratings.
 threshold <- 5
@@ -71,7 +85,7 @@ if(any(dim(ratings_train_matrix) != dim(ratings_test_matrix))){
 
 source("CDAE.R")
 model <- create_cdae(I = nrow(movieIDs), 
-                     U = nrow(userIDs), 
+                     U = max(userIDs), 
                      K = 50, 
                      q = 0.2, 
                      l = 0.1, 
@@ -84,10 +98,10 @@ history <-
   model %>% 
   fit(
     x = list(item_input = as.matrix(ratings_train_matrix),
-             user_input = as.array(userIDs$userId)), #TODO: Remap users to be consecutive 
+             user_input = as.array(userIDs$userId)), 
       y = as.matrix(ratings_train_matrix),
-    epochs = 5,
-    batch_size = 60, 
+    epochs = 3,
+    batch_size = 128, 
     shuffle = TRUE
   ) 
 
@@ -97,5 +111,9 @@ history <-
 history
 #plot(history)
 
-# Evaluate returns same metrics that were defined in the compile (accuracy in this case)
-(results <- model %>% evaluate(list(as.matrix(ratings_test_matrix), as.array(userIDs$userId)), as.matrix(ratings_test_matrix))) #TODO: Fix user ids
+(results <- model %>% evaluate(list(as.matrix(ratings_test_matrix), as.array(userIDs$userId)), as.matrix(ratings_test_matrix))) 
+
+# Get predictions for test set:
+test_pred <- 
+  model %>% 
+  predict(x = list(as.matrix(ratings_test_matrix), as.array(userIDs$userId)))
