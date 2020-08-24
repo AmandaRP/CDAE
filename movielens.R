@@ -9,21 +9,23 @@ library(magrittr)
 # Read and wrangle data ---------------------------------------------------
 # Data available from https://grouplens.org/datasets/movielens/
 
-#filename <- "ml-latest-small.zip"
-#download.file("http://files.grouplens.org/datasets/movielens/ml-latest-small.zip", filename)
+# Small dataset:
+filename <- "ml-latest-small.zip"
+download.file("http://files.grouplens.org/datasets/movielens/ml-latest-small.zip", filename)
 ratings <- read_csv("ml-latest-small/ratings.csv")
 
+# ml-10m dataset:
 #filename <- "ml-10m.zip"
 #download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", filename)
-ratings <- 
-  read_delim("ml-10M100K/ratings.dat", delim = ":", col_names = FALSE) %>%
-  rename(userId = X1, movieId = X3, rating = X7) %>%
-  select(!starts_with("X")) 
+#ratings <- 
+#  read_delim("ml-10M100K/ratings.dat", delim = ":", col_names = FALSE) %>%
+#  rename(userId = X1, movieId = X3, rating = X7) %>%
+#  select(!starts_with("X")) 
   
-
+# ml-25m dataset
 #filename <- "ml-25m.zip"
 #download.file("http://files.grouplens.org/datasets/movielens/ml-25m.zip", filename)
-ratings <- read_csv("ml-25m/ratings.csv")
+#ratings <- read_csv("ml-25m/ratings.csv")
 
 #Keep only ratings greater than or equal to 4 (for translation to binary data).
 ratings %<>% filter(rating >=4 )
