@@ -26,7 +26,7 @@ create_cdae <- function(I, U, K=NULL, q=NULL, l=NULL, hidden_activation='relu', 
   
   user_hidden <-
     user_input %>%
-    layer_embedding(input_dim = U, 
+    layer_embedding(input_dim = U+1, 
                     output_dim = K, 
                     input_length = 1,
                     embeddings_regularizer = regularizer_l2(l),
