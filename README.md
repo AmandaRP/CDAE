@@ -12,6 +12,9 @@ in the following paper.
 > Mining (WSDM ’16). Association for Computing Machinery, New York, NY,
 > USA, 153–162. <DOI:https://doi.org/10.1145/2835776.2835837>
 
-## To start
+## Code
 
-## Data
+The model implementation is in `CDAE.R`. This implementation assumes
+binary feedback (1 = user liked movie, 0 otherwise). An example using
+[MovieLens](https://grouplens.org/datasets/movielens/) dataset is
+provided in `movieLens.R`.
