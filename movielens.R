@@ -1,4 +1,5 @@
-# This script reads and wrangles the movielens data
+# This script trains the cdae model on movielens data. 
+# Use to recommend new movies to users.
 
 # Load libraries -----------------------------------------------------------
 
@@ -74,8 +75,7 @@ model <- create_cdae(I = nrow(movieIDs),
                      K = 50, 
                      q = 0.2, 
                      l = 0.1, 
-                     hidden_activation='sigmoid', 
-                     output_activation='sigmoid')
+                     hidden_activation='sigmoid') #TODO: Paper uses sigmoid. I use relu as default. Test which is better.
 summary(model)
 
 # Train model -------------------------------------------------------------
@@ -84,10 +84,10 @@ history <-
   model %>% 
   fit(
     x = list(item_input = as.matrix(ratings_train_matrix),
-             user_input = as.array(userIDs)),
+             user_input = as.array(userIDs$userId)), #TODO: Remap users to be consecutive 
       y = as.matrix(ratings_train_matrix),
     epochs = 5,
-    batch_size = 128, 
+    batch_size = 60, 
     shuffle = TRUE
   ) 
 
@@ -98,4 +98,4 @@ history
 #plot(history)
 
 # Evaluate returns same metrics that were defined in the compile (accuracy in this case)
-(results <- model %>% evaluate(list(test$user, test$item), test$label))
+(results <- model %>% evaluate(list(as.matrix(ratings_test_matrix), as.array(userIDs$userId)), as.matrix(ratings_test_matrix))) #TODO: Fix user ids
